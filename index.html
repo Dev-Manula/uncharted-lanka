@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uncharted Lanka | Premium Travel Guide</title>
     
-    <!-- Google Fonts (Inter font එක premium look එකක් දෙනවා) -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     
     <!-- CSS Link -->
@@ -29,7 +29,6 @@
             <h1 class="fade-in">Explore the <span>Unseen</span></h1>
             <p class="fade-in">Premium, ad-free guide to Sri Lanka's hidden wonders.</p>
             
-            <!-- Search Bar -->
             <div class="search-container fade-in">
                 <input type="text" id="searchInput" placeholder="Search for a destination (e.g. Sigiriya)...">
             </div>
@@ -39,8 +38,6 @@
     <!-- Filter Section -->
     <section class="filters">
         <div class="filter-wrapper">
-            
-            <!-- District Dropdown -->
             <div class="dropdown-container">
                 <select id="districtFilter" class="custom-select">
                     <option value="all">All Districts</option>
@@ -50,11 +47,11 @@
                     <option value="matale">Matale</option>
                     <option value="nuwara-eliya">Nuwara Eliya</option>
                     <option value="anuradhapura">Anuradhapura</option>
-                    <!-- තව දිස්ත්‍රික්ක පස්සේ එකතු කරමු -->
+                    <option value="badulla">Badulla</option>
+                    <option value="matara">Matara</option>
                 </select>
             </div>
 
-            <!-- Category Buttons -->
             <div class="category-scroll">
                 <button class="cat-btn active" data-cat="all">All</button>
                 <button class="cat-btn" data-cat="waterfalls">Waterfalls</button>
@@ -63,14 +60,13 @@
                 <button class="cat-btn" data-cat="wildlife">Wildlife</button>
                 <button class="cat-btn" data-cat="hiking">Hiking</button>
             </div>
-
         </div>
     </section>
 
     <!-- Destinations Grid -->
     <main class="container">
         <div class="destinations-grid" id="destinationsContainer">
-            <!-- JavaScript මගින් මෙතනට cards ඇතුළත් වේවි -->
+            <!-- JS injects cards here -->
         </div>
     </main>
 
@@ -79,7 +75,29 @@
         <p>&copy; 2024 Uncharted Lanka. Designed for Explorers.</p>
     </footer>
 
-    <!-- JS Link -->
+    <!-- Modal (Popup) - මේක script එකට උඩින් තිබිය යුතුයි -->
+    <div id="destinationModal" class="modal">
+        <div class="modal-content fade-in">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="modal-img">
+                    <img id="modalImg" src="" alt="">
+                </div>
+                <div class="modal-info">
+                    <h2 id="modalTitle"></h2>
+                    <p id="modalDistrict" class="modal-district"></p>
+                    <div class="modal-desc-scroll">
+                        <p id="modalDesc"></p>
+                    </div>
+                    <div class="modal-actions">
+                        <a href="#" id="mapLink" target="_blank" class="btn-map">View on Google Maps</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Link - මේක තමයි අන්තිමටම තියෙන්න ඕනේ -->
     <script src="script.js"></script>
 </body>
 </html>
