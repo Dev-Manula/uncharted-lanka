@@ -1,144 +1,217 @@
-// 1. දත්ත (Data)
-const destinations = [
-    {
-        id: 1,
-        name: "Sigiriya Rock Fortress",
-        district: "matale",
-        category: "ancient",
-        image: "images/sigiriya.jpg", 
-        description: "Sigiriya or Sinhagiri is an ancient rock fortress located in the northern Matale District near the town of Dambulla in the Central Province, Sri Lanka. It is a site of historical and archaeological significance.",
-        map: "https://www.google.com/maps/search/Sigiriya"
-    },
-    {
-        id: 2,
-        name: "Nine Arch Bridge",
-        district: "badulla",
-        category: "hiking",
-        image: "images/ninearch.jpg",
-        description: "The Nine Arch Bridge in Ella is one of the best examples of colonial-era railway construction in the country. It is a paradise for hikers and photographers.",
-        map: "https://www.google.com/maps/search/Nine+Arch+Bridge"
-    },
-    {
-        id: 3,
-        name: "Mirissa Beach",
-        district: "matara",
-        category: "beaches",
-        image: "images/mirissabeach.jpg",
-        description: "Mirissa is one of the main beach destinations in southern Sri Lanka. The area is famous for its beautiful sunsets and whale watching tours.",
-        map: "https://www.google.com/maps/search/Mirissa+Beach"
-    },
-    {
-        id: 4,
-        name: "Diyaluma Falls",
-        district: "badulla",
-        category: "waterfalls",
-        image: "images/diyalumafalls.jpg",
-        description: "Diyaluma Falls is 220 m high and the second highest waterfall in Sri Lanka. It offers several natural pools at the top with an incredible view.",
-        map: "https://www.google.com/maps/search/Diyaluma+Falls"
-    }
-];
-
-// 2. Elements හඳුනා ගැනීම
+// 1. Elements හඳුනා ගැනීම
 const container = document.getElementById('destinationsContainer');
-const modal = document.getElementById('destinationModal');
-const closeModal = document.querySelector('.close-modal');
-
-// 3. Cards පෙන්වන Function
-function displayDestinations(items) {
-    container.innerHTML = ""; 
-    if (items.length === 0) {
-        container.innerHTML = `<div class="no-results"><p>Oops! No destinations found.</p></div>`;
-        return;
-    }
-
-    items.forEach(item => {
-        const card = `
-            <div class="destination-card fade-in">
-                <div class="card-img">
-                    <img src="${item.image}" alt="${item.name}">
-                    <span class="category-tag">${item.category}</span>
-                </div>
-                <div class="card-info">
-                    <h3>${item.name}</h3>
-                    <p class="district">📍 ${item.district}</p>
-                    <p class="desc">${item.description}</p>
-                    <button class="btn-explore" onclick="openDetails(${item.id})">Explore More</button>
-                </div>
-            </div>
-        `;
-        container.innerHTML += card;
-    });
-}
-
-// 4. Modal විවෘත කිරීම
-function openDetails(id) {
-    const selected = destinations.find(dest => dest.id === id);
-    if (selected) {
-        document.getElementById('modalImg').src = selected.image;
-        document.getElementById('modalTitle').innerText = selected.name;
-        document.getElementById('modalDistrict').innerText = `📍 ${selected.district}`;
-        document.getElementById('modalDesc').innerText = selected.description;
-        document.getElementById('mapLink').href = selected.map;
-
-        modal.style.display = "block";
-        document.body.style.overflow = "hidden";
-    }
-}
-
-// 5. Modal වැසීම (Safe check එකක් සමඟ)
-if (closeModal) {
-    closeModal.onclick = function() {
-        modal.style.display = "none";
-        document.body.style.overflow = "auto";
-    }
-}
-
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-        document.body.style.overflow = "auto";
-    }
-}
-
-// 6. Filtering Logic
+const detailView = document.getElementById('detailView');
 const searchInput = document.getElementById('searchInput');
 const districtFilter = document.getElementById('districtFilter');
 const categoryButtons = document.querySelectorAll('.cat-btn');
+const suggestionsBox = document.getElementById('suggestionsList');
+const accordionContainer = document.getElementById('accordionContainer');
+const cursorDot = document.querySelector(".cursor-dot");
+const cursorOutline = document.querySelector(".cursor-outline");
 
 let activeCategory = 'all';
+let fuse; // Fuse instance එක පසුව initialize කරමු
 
-if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-        filterDestinations(e.target.value.toLowerCase(), districtFilter.value, activeCategory);
+// 2. Fuse.js Setup (Data load වුණාම කරන්න)
+function setupSearch() {
+    if (typeof destinations !== 'undefined') {
+        fuse = new Fuse(destinations, {
+            keys: ['name', 'district', 'category'],
+            threshold: 0.4
+        });
+    }
+}
+
+// 3. Cards පෙන්වන Function එක
+function displayDestinations(items) {
+    container.innerHTML = "";
+    if (items.length === 0) {
+        container.innerHTML = `<div class="coming-soon-box"><h3>No gems found.</h3><p>Try adjusting your filters.</p></div>`;
+        return;
+    }
+    items.forEach(item => {
+        container.innerHTML += `
+            <div class="destination-card fade-in">
+                <div class="card-img">
+                    <img src="${item.image}" alt="${item.name}" loading="lazy">
+                    <span class="category-tag">${item.category}</span>
+                </div>
+                <div class="card-info">
+                    <span class="district">📍 ${item.district}</span>
+                    <h3>${item.name}</h3>
+                    <p class="desc">${item.description}</p>
+                    <button class="btn-explore" onclick="openDetails(${item.id})">Explore More</button>
+                </div>
+            </div>`;
+    });
+    // අලුතින් ආපු buttons වලට cursor hover එක ලබා දීම
+    attachCursorListeners();
+}
+
+// 4. Smart Filtering & Search Logic
+function updateUI() {
+    const searchValue = searchInput.value.trim();
+    const selectedDistrict = districtFilter.value;
+    
+    let results = [];
+
+    if (searchValue.length > 0 && fuse) {
+        const fuzzyResults = fuse.search(searchValue);
+        results = fuzzyResults.map(r => r.item);
+        showSuggestions(fuzzyResults);
+    } else {
+        results = [...destinations];
+        suggestionsBox.style.display = "none";
+    }
+
+    // District සහ Category අනුව Filter කිරීම
+    const finalFiltered = results.filter(item => {
+        const matchesDistrict = (selectedDistrict === 'all' || item.district === selectedDistrict);
+        const matchesCategory = (activeCategory === 'all' || item.category === activeCategory);
+        return matchesDistrict && matchesCategory;
+    });
+
+    displayDestinations(finalFiltered);
+}
+
+// Suggestions පෙන්වීම
+function showSuggestions(results) {
+    suggestionsBox.innerHTML = "";
+    if (results.length > 0) {
+        suggestionsBox.style.display = "block";
+        results.slice(0, 5).forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.innerHTML = `${r.item.name} <span>${r.item.district}</span>`;
+            div.onclick = () => {
+                searchInput.value = r.item.name;
+                suggestionsBox.style.display = "none";
+                updateUI();
+            };
+            suggestionsBox.appendChild(div);
+        });
+    } else {
+        suggestionsBox.style.display = "none";
+    }
+}
+
+// 5. Full Screen Detail View Logic
+function openDetails(id) {
+    const selected = destinations.find(dest => dest.id === id);
+    if (!selected) return;
+
+    document.getElementById('detailHeader').style.backgroundImage = `url(${selected.image})`;
+    document.getElementById('detailTitle').innerText = selected.name;
+    document.getElementById('detailCategory').innerText = selected.category;
+    document.getElementById('detailLocation').innerText = `📍 ${selected.district}`;
+
+    accordionContainer.innerHTML = "";
+
+    const sections = [
+        { title: "History & Story", content: selected.history, hideIfEmpty: true },
+        { title: "Local Food & Dining", content: selected.food, hideIfEmpty: true },
+        { title: "Tickets & Fees", content: selected.tickets, hideIfEmpty: true },
+        { title: "Best Time to Visit", content: selected.bestTime, hideIfEmpty: true },
+        { title: "Accommodation", content: selected.hostels, hideIfEmpty: true },
+        { title: "Location Map", content: selected.map, isLink: true, hideIfEmpty: true }
+    ];
+
+    const hasAnyDetails = sections.some(sec => sec.content && sec.content.trim() !== "");
+
+    if (!hasAnyDetails) {
+        accordionContainer.innerHTML = `
+            <div class="coming-soon-box fade-in">
+                <h3>More Details Coming Soon</h3>
+                <p>We are currently gathering more information about this hidden gem. Stay tuned!</p>
+            </div>`;
+    } else {
+        sections.forEach(sec => {
+            if (sec.hideIfEmpty && !sec.content) return;
+            const contentHTML = sec.isLink ? `<a href="${sec.content}" target="_blank" class="btn-map-large">Open in Google Maps</a>` : `<p>${sec.content || "Information coming soon..."}</p>`;
+            accordionContainer.innerHTML += `
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">${sec.title}</div>
+                    <div class="accordion-content">${contentHTML}</div>
+                </div>`;
+        });
+    }
+
+    requestAnimationFrame(() => {
+        detailView.style.display = "block";
+        document.body.style.overflow = "hidden";
     });
 }
 
-if (districtFilter) {
-    districtFilter.addEventListener('change', (e) => {
-        filterDestinations(searchInput.value.toLowerCase(), e.target.value, activeCategory);
+function closeDetails() {
+    detailView.style.display = "none";
+    document.body.style.overflow = "auto";
+}
+
+function toggleAccordion(header) {
+    header.parentElement.classList.toggle('active');
+}
+
+// 6. Premium Custom Cursor Logic
+window.addEventListener("mousemove", (e) => {
+    const posX = e.clientX;
+    const posY = e.clientY;
+    cursorDot.style.left = `${posX}px`;
+    cursorDot.style.top = `${posY}px`;
+    cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
+});
+
+function attachCursorListeners() {
+    const interactiveElements = document.querySelectorAll("button, a, .cat-btn, .custom-select, .accordion-header");
+    interactiveElements.forEach(el => {
+        el.addEventListener("mouseenter", () => cursorOutline.classList.add("cursor-hover"));
+        el.addEventListener("mouseleave", () => cursorOutline.classList.remove("cursor-hover"));
     });
 }
 
+// 7. Smooth Scrolling for Nav Links
+document.querySelectorAll('.nav-links a').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    });
+});
+
+// 8. Initialization
+window.addEventListener('load', () => {
+    // Preloader අයින් කිරීම
+    setTimeout(() => {
+        document.getElementById('preloader').classList.add('preloader-hidden');
+    }, 1000);
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    setupSearch();
+    updateUI(); // මුලින්ම cards පෙන්වීම
+});
+
+// Event Listeners for Filters
+searchInput.addEventListener('input', updateUI);
+districtFilter.addEventListener('change', updateUI);
 categoryButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         categoryButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         activeCategory = btn.dataset.cat;
-        filterDestinations(searchInput.value.toLowerCase(), districtFilter.value, activeCategory);
+        updateUI();
     });
 });
 
-function filterDestinations(search, district, category) {
-    const filtered = destinations.filter(item => {
-        const matchesSearch = item.name.toLowerCase().includes(search);
-        const matchesDistrict = (district === 'all' || item.district === district);
-        const matchesCategory = (category === 'all' || item.category === category);
-        return matchesSearch && matchesDistrict && matchesCategory;
-    });
-    displayDestinations(filtered);
-}
-
-// මුලින්ම cards පෙන්වීම
-window.addEventListener('DOMContentLoaded', () => {
-    displayDestinations(destinations);
+// පිටත click කළහොත් suggestions වසන්න
+document.addEventListener('click', (e) => {
+    if (e.target !== searchInput) suggestionsBox.style.display = "none";
 });

@@ -5,40 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uncharted Lanka | Premium Travel Guide</title>
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    
-    <!-- CSS Link -->
+    <!-- Google Fonts: Inter (Premium Typography) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body id="home"> <!-- Home ID එක මෙතනට දුන්නා -->
 
-    <!-- Navigation -->
+    <!-- Custom Cursor (Mouse එක පස්සෙන් එන වළල්ල) -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <!-- 1. Preloader (සයිට් එක load වෙනකොට එන animation එක) -->
+    <div id="preloader">
+        <div class="loader-content">
+            <div class="logo-loader">UNCHARTED<span>LANKA</span></div>
+            <div class="loader-bar"></div>
+        </div>
+    </div>
+
+    <!-- 2. Premium Navigation Bar -->
     <nav class="navbar">
-        <div class="logo">UNCHARTED<span>LANKA</span></div>
-        <ul class="nav-links">
-            <li><a href="#" class="active">Home</a></li>
-            <li><a href="#">Map</a></li>
-            <li><a href="#">About</a></li>
-        </ul>
+        <div class="nav-container">
+            <div class="logo">UNCHARTED<span>LANKA</span></div>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#explore">Explore</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- 3. Immersive Hero Section -->
     <header class="hero">
-        <div class="hero-content">
-            <h1 class="fade-in">Explore the <span>Unseen</span></h1>
-            <p class="fade-in">Premium, ad-free guide to Sri Lanka's hidden wonders.</p>
+        <div class="hero-overlay"></div>
+        <div class="hero-content fade-in">
+            <span class="hero-subtitle">Discover Sri Lanka</span>
+            <h1>Explore the <span>Unseen</span></h1>
+            <p>A premium, ad-free journey through the hidden wonders of the pearl of the Indian Ocean.</p>
             
-            <div class="search-container fade-in">
-                <input type="text" id="searchInput" placeholder="Search for a destination (e.g. Sigiriya)...">
+            <div class="search-wrapper">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search destinations, districts..." autocomplete="off">
+                    <div id="suggestionsList" class="suggestions-box"></div>
+                </div>
             </div>
+        </div>
+
+        <!-- Scroll Indicator (පල්ලෙහාවට යන්න කියලා පෙන්වන ලකුණ) -->
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Scroll to Discover</span>
         </div>
     </header>
 
-    <!-- Filter Section -->
-    <section class="filters">
-        <div class="filter-wrapper">
-            <div class="dropdown-container">
+    <!-- 4. Advanced Filter Section (Explore Section) -->
+    <section id="explore" class="filters">
+        <div class="filter-container">
+            <div class="dropdown-wrapper">
                 <select id="districtFilter" class="custom-select">
                     <option value="all">All Districts</option>
                     <option value="colombo">Colombo</option>
@@ -63,41 +88,73 @@
         </div>
     </section>
 
-    <!-- Destinations Grid -->
-    <main class="container">
-        <div class="destinations-grid" id="destinationsContainer">
-            <!-- JS injects cards here -->
+    <!-- 5. Main Content: Destinations Grid -->
+    <main class="main-content">
+        <div class="container">
+            <div class="destinations-grid" id="destinationsContainer">
+                <!-- Cards injected by JS -->
+            </div>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2024 Uncharted Lanka. Designed for Explorers.</p>
-    </footer>
-
-    <!-- Modal (Popup) - මේක script එකට උඩින් තිබිය යුතුයි -->
-    <div id="destinationModal" class="modal">
-        <div class="modal-content fade-in">
-            <span class="close-modal">&times;</span>
-            <div class="modal-body">
-                <div class="modal-img">
-                    <img id="modalImg" src="" alt="">
+    <!-- 6. About Section (සයිට් එකේ හිස් ගතිය නැති කිරීමට) -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-text fade-in">
+                    <span class="hero-subtitle">Our Mission</span>
+                    <h2>Preserving the <span>Authentic</span> Sri Lanka</h2>
+                    <p>Uncharted Lanka is more than just a travel guide. It's a premium, ad-free platform dedicated to showcasing the raw beauty of our island. We believe in sustainable travel and uncovering hidden gems that are often missed by the crowds.</p>
+                    <div class="stats">
+                        <div class="stat-item"><h3>25+</h3><p>Destinations</p></div>
+                        <div class="stat-item"><h3>100%</h3><p>Ad-Free</p></div>
+                        <div class="stat-item"><h3>24/7</h3><p>Support</p></div>
+                    </div>
                 </div>
-                <div class="modal-info">
-                    <h2 id="modalTitle"></h2>
-                    <p id="modalDistrict" class="modal-district"></p>
-                    <div class="modal-desc-scroll">
-                        <p id="modalDesc"></p>
-                    </div>
-                    <div class="modal-actions">
-                        <a href="#" id="mapLink" target="_blank" class="btn-map">View on Google Maps</a>
-                    </div>
+                <div class="about-image fade-in">
+                    <img src="https://images.unsplash.com/photo-1580502304784-8985b777da3f?auto=format&fit=crop&w=800&q=80" alt="Sri Lanka Nature">
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- JavaScript Link - මේක තමයි අන්තිමටම තියෙන්න ඕනේ -->
+    <!-- 7. Full Screen Detail View -->
+    <section id="detailView" class="detail-page">
+        <button class="btn-back" onclick="closeDetails()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Explore
+        </button>
+        
+        <div class="detail-header" id="detailHeader">
+            <div class="detail-header-content">
+                <span id="detailCategory" class="detail-badge"></span>
+                <h1 id="detailTitle"></h1>
+                <p id="detailLocation" class="detail-loc-text"></p>
+            </div>
+        </div>
+
+        <div class="detail-container">
+            <div id="accordionContainer" class="accordion-wrapper">
+                <!-- JS will inject Accordion or Coming Soon Box here -->
+            </div>
+            
+            <!-- Detail View Footer -->
+            <div class="detail-footer">
+                <p>&copy; 2024 UNCHARTED LANKA. All Rights Reserved.</p>
+                <p class="contact-info">Contact: <a href="mailto:hello@unchartedlanka.com">hello@unchartedlanka.com</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. Main Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 UNCHARTED LANKA. All Rights Reserved.</p>
+        <p class="contact-info">Get in touch: <a href="mailto:hello@unchartedlanka.com">hello@unchartedlanka.com</a></p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js"></script>
+    <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
